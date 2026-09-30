@@ -17,6 +17,8 @@ It mainly supports Japanese, but also supports Simplified and Traditional Chines
 Supports image repair (text removal) and typesetting.
 This project is v2 of [Qiú wén zhuǎn yì zhì](https://github.com/PatchyVideo/MMDOCR-HighPerformance).
 
+**NEW**: Now supports plain text and PDF translation via `text_translator.py` - extract the DeepSeek translation core for document translation without image processing overhead.
+
 **Note: This project is still in the early stages of development and has many shortcomings. We need your help to improve it!**
 
 
@@ -42,6 +44,7 @@ This project is v2 of [Qiú wén zhuǎn yì zhì](https://github.com/PatchyVideo
     *   [API Mode](#api-mode)
         *   [API Documentation](#api-documentation)
     *   [Config-help Mode](#config-help-mode)
+    *   [Text/PDF Mode](#textpdf-mode)
 *   [Option and Configuration](#option-and-configuration)
     *   [Recommended Options](#recommended-options)
         *   [Tips to Improve Translation Quality](#tips-to-improve-translation-quality)
@@ -341,6 +344,22 @@ Read the openapi documentation at: `127.0.0.1:8000/docs`
 ```bash
 python -m manga_translator config-help
 ```
+
+### Text/PDF Mode
+`text_translator.py` translates plain text, `.txt` files and text-based PDFs with DeepSeek, without loading the image pipeline. It reads `DEEPSEEK_API_KEY` from `.env`.
+```bash
+# Plain text
+python text_translator.py "Hello, world!" -t Chinese
+# Text file / PDF (PDF output is a .txt with the same line layout)
+python text_translator.py article.txt --file -o article_zh.txt
+python text_translator.py book.pdf --pdf -o book_zh.txt
+# Keep names and terms consistent across batches
+python text_translator.py book.pdf --pdf -o book_zh.txt \
+    --context "Title, characters, setting..." --glossary dict/sakura_dict.txt
+```
+- `--context`: background on the source work, as text or a path to a `.txt` file. Added to the system prompt.
+- `--glossary`: sakura (`src->dst #note`), galtransl (`src<TAB>dst`) or MIT format, same as the files in `dict/`. Only terms found in each batch are sent.
+- Image-only (scanned) PDFs have no text layer and are not supported.
 
 ## Options and Configuration Description
 ### Recommended Options
